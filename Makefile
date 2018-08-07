@@ -15,7 +15,7 @@ BOSMARMOT_GOPATH := ${REPO}/.gopath_bos
 BOSMARMOT_CHECKOUT := ${BOSMARMOT_GOPATH}/src/${BOSMARMOT_PROJECT}
 
 # Protobuf generated go files
-PROTO_FILES = $(shell find . -path ./vendor -prune -o -type f -name '*.proto' -print)
+PROTO_FILES = $(shell find . -path ./vendor -prune -o -path ./.gopath_bos -prune -o -type f -name '*.proto' -print)
 PROTO_GO_FILES = $(patsubst %.proto, %.pb.go, $(PROTO_FILES))
 PROTO_GO_FILES_REAL = $(shell find . -path ./vendor -prune -o -type f -name '*.pb.go' -print)
 
@@ -231,14 +231,10 @@ docs: CHANGELOG.md NOTES.md
 tag_release: test check CHANGELOG.md NOTES.md build
 	@scripts/tag_release.sh
 
-.PHONY: docker_build_ci_rebuild
-docker_build_ci_rebuild:
+.PHONY: build_ci_image
+build_ci_image:
 	docker build --no-cache -t ${CI_IMAGE} -f ./.circleci/Dockerfile .
 
-.PHONY: docker_build_ci
-docker_build_ci:
-	docker build -t ${CI_IMAGE} -f ./.circleci/Dockerfile .
-
-.PHONY: docker_push_ci
-docker_push_ci: docker_build_ci
+.PHONY: push_ci_image
+push_ci_image: build_ci_image
 	docker push ${CI_IMAGE}
